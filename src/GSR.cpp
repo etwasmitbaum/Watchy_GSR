@@ -124,6 +124,7 @@ class OverrideGSR : public WatchyGSR {
       }
     };
 
+/*
     bool InsertHandlePressed(uint8_t SwitchNumber, bool &Haptic, bool &Refresh) {
       switch (SwitchNumber){
         case 2: //Back
@@ -139,6 +140,7 @@ class OverrideGSR : public WatchyGSR {
       }
       return false;
     };
+*/
 
 /*
     bool OverrideSleepBitmap(){
