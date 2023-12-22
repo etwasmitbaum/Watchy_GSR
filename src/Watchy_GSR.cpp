@@ -110,6 +110,9 @@ RTC_DATA_ATTR uint64_t GSR_BTN_MASK;
 RTC_DATA_ATTR float HWVer;
 RTC_DATA_ATTR volatile bool KeyIRQ; // Used to stop repeats.
 
+const u8_t VBUS_USB_PIN = 39;
+const u8_t BATT_STAT_PIN = 32;
+
 RTC_DATA_ATTR struct Countdown final {
   bool Active;
   bool Repeats;
@@ -1525,7 +1528,6 @@ uint8_t P = SRTC.getADCPin();
     pinMode(36,INPUT);  /*  ??  */
     pinMode(37,INPUT);  /*  ??  */
     pinMode(38,INPUT);  /*  ??  */
-    pinMode(39,INPUT);  /*  ??  */
 /* RS232 */
     pinMode(3,INPUT);   /*  RX  */
 /* BUTTONS */
@@ -1538,6 +1540,7 @@ uint8_t P = SRTC.getADCPin();
     //pinMode(27,INPUT);  /* INT      */
     //if (P != 33) pinMode(33,INPUT);  /* ADC      */
     //if (P != 34) pinMode(34,INPUT);  /* ADC      */
+    pinMode(VBUS_USB_PIN,INPUT);  /*  USB Connected / Charging  */
 /* RTC */
     pinMode(21,INPUT);  /* SDA  */
     pinMode(22,INPUT);  /* SCL  */
@@ -1576,6 +1579,12 @@ void WatchyGSR::detectBattery(){
     }else if (Battery.Level < 0){
         S = !(WatchyAPOn || OTAUpdate || GSRWiFi.Requests > 0);
         Battery.Direction = -1;
+    }
+    //VBUS_USB_PIN can do ADC, use this to determine if usb is connected
+    if (analogReadMilliVolts(VBUS_USB_PIN) > 2000){
+        Battery.Direction = 1;
+    } else {
+        Battery.DarkDirection = -1;
     }
     if (R) Battery.LastTest = WatchTime.UTC_RAW - WatchTime.UTC.Second;  /* Adds to the minute */
     if (S) Battery.Last = CBAT; // Store it here.
