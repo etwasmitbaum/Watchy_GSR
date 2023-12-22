@@ -156,11 +156,11 @@ class WatchyGSR{
         virtual void initAddOn(WatchyGSR *NewAddon) final;
         virtual void setFontColor(uint16_t Color) final;
         virtual tmElements_t UTCtoLocal(time_t Incoming) final;
+        void drawData(String dData, byte Left, byte Bottom, WatchyGSR::DesOps Style, byte Gutter, bool isTime = false, bool PM = false);
    private:
         void setStatus(String Status);
         void drawMenu();
         void setFontFor(String O, const GFXfont *Normal, const GFXfont *Small, const GFXfont *Smaller, byte Gutter = 5);
-        void drawData(String dData, byte Left, byte Bottom, WatchyGSR::DesOps Style, byte Gutter, bool isTime = false, bool PM = false);
         void GoDark(bool DeepSleeping = false);
         void ForceInputs();
         void detectBattery();
