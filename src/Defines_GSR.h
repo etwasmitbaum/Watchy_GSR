@@ -1,6 +1,8 @@
 #ifndef DEFINES_GSR_H
 #define DEFINES_GSR_H
 
+#define STABLEBMA_H_INCLUDED
+
 // GPIO
 #define GSR_GPIO_SEL_4   (BIT(4))                         /*!< Pin 4 selected */
 #define GSR_GPIO_SEL_25  (BIT(25))                        /*!< Pin 25 selected */

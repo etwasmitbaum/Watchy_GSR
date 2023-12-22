@@ -3275,14 +3275,14 @@ void WatchyGSR::_bmaConfig() {
 uint8_t Type = SRTC.getType();
 
 #ifdef STABLEBMA_H_INCLUDED
-  if (SBMA.begin(_readRegister, _writeRegister, delay, Type) == false) {
+  if (SBMA.begin(Type, BMA4_I2C_ADDR_PRIMARY) == false) {
     //fail to init BMA
     return;
   }
 
   if (!SBMA.defaultConfig()) return;  // Failed.
   // Enable BMA423 isStepCounter feature
-  SBMA.enableFeature(BMA423_STEP_CNTR, true);
+  SBMA.enableFeature(BMA456W_STEP_CNTR, true);
 #endif
 }
 
