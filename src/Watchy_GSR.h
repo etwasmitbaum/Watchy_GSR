@@ -34,7 +34,7 @@ class WatchyGSR{
         static SmallRTC SRTC;
         static SmallNTP SNTP;
         static GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> display;
-        static constexpr const char* Build = "1.4.7C1";
+        static constexpr const char* Build = "1.4.7C2";
         enum DesOps {dSTATIC, dLEFT, dRIGHT, dCENTER};
 
     public:
@@ -110,6 +110,7 @@ class WatchyGSR{
         virtual String YesterdaySteps() final;
         virtual uint32_t YesterdayStepCount() final;
         virtual bool BMAAvailable() final;
+        virtual float BMATemperature(bool Metric = true) final;
         virtual String CurrentWatchStyle() final;
         virtual String CurrentGameStyle() final;
         virtual void AllowDefaultWatchStyles(bool Allow = true) final;
@@ -197,6 +198,7 @@ class WatchyGSR{
         uint8_t getButtonMaskToID(uint64_t HW);
         static uint8_t getSWValue(bool SW1, bool SW2, bool SW3, bool SW4);
         void SetAskWiFi(bool SetWiFi);
+        bool HasIPAddress();
         bool WiFiInProgress();
         void processWiFiRequest();
         String WiFiIndicator(uint8_t Index);

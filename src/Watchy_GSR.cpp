@@ -28,6 +28,7 @@ RTC_DATA_ATTR struct GSRWireless final {
     uint8_t Index;           // 10 = built-in, roll backwards to 0.
     uint8_t Requests;        // WiFi Connect requests.
     uint8_t Slow;            // Slows down initial connection to avoid brownouts.
+    IPAddress LocalIP;       // Address gotten when connection happens.
     struct APInfo {
         char APID[33];
         char PASS[65];
@@ -599,7 +600,8 @@ void WatchyGSR::init(String datetime){
                   case 1: // Wait for WiFi to connect or fail.
                     if (!GetAskWiFi()) AskForWiFi();
                     else if (WiFiStatus() != WL_CONNECTED && currentWiFi() != WL_CONNECT_FAILED) OTATimer = millis();
-                    else if (WiFiStatus() == WL_CONNECTED){
+                    else if (HasIPAddress()){
+                      setStatus(WiFiIndicator(GSRWiFi.Index ? GSRWiFi.Index : 24));
                       Menu.SubItem++;
                       UpdateDisp |= Showing();
                     }else if (!WiFiInProgress()) OTAEnd=true;
@@ -1310,7 +1312,7 @@ void WatchyGSR::drawMenu(){
         }else if (Menu.SubItem == 1){
             O = LGSR.GetID(Options.LanguageID,101);
         }else if (Menu.SubItem == 2 || Menu.SubItem == 3){
-            O = WiFi.localIP().toString();
+            O = GSRWiFi.LocalIP.toString();
         }
     }else if (Menu.Item == GSR_MENU_SCRN){  // Reset Screen.
         O = LGSR.GetID(Options.LanguageID,60);
@@ -3257,6 +3259,12 @@ bool WatchyGSR::BMAAvailable(){
     return false;
 #endif  
 }
+float WatchyGSR::BMATemperature(bool Metric){
+#ifdef STABLEBMA_H_INCLUDED
+    if (BMAAvailable()) return (Metric ? SBMA.readTemperature() : SBMA.readTemperatureF());
+#endif  
+    return -1;
+}
 String WatchyGSR::CurrentWatchStyle(){
     uint8_t X;
     char O[32];
@@ -3668,11 +3676,15 @@ void WatchyGSR::endWiFi(){
     }
 }
 
+bool WatchyGSR::HasIPAddress() {
+    if (WiFi.status() == WL_CONNECTED){ GSRWiFi.LocalIP = WiFi.localIP(); return !(GSRWiFi.LocalIP[0] == 0 || GSRWiFi.LocalIP[3] == 0 || (GSRWiFi.LocalIP[0] == 169 && GSRWiFi.LocalIP[1] == 254)); }
+    return false;
+}
+
 bool WatchyGSR::WiFiInProgress() { return (GSRWiFi.Requests > 0 && (GSRWiFi.Requested || GSRWiFi.Working || GSRWiFi.Results)); }
 
 void WatchyGSR::processWiFiRequest(){
     wl_status_t WiFiE = WL_CONNECT_FAILED;
-    wl_status_t rWiFi = WiFi.status();
     wifi_config_t conf;
     String AP, PA, O;
     uint8_t I;
@@ -3700,7 +3712,7 @@ void WatchyGSR::processWiFiRequest(){
     if (GSRWiFi.Working) {
         if (getButtonPins() != 2) OTATimer = millis(); // Not pressing "BACK".
         if (millis() - OTATimer > 10000 || millis() > OTAFail || IsEndOTA()) OTAEnd = true; // Fail if holding back for 10 seconds OR 600 seconds has passed.
-        if (rWiFi == WL_CONNECTED && GSRWiFi.Working) { GSRWiFi.Working = false; setStatus(WiFiIndicator(GSRWiFi.Index ? GSRWiFi.Index : 24)); GSRWiFi.Results = true; return; } // We got connected.
+        if (HasIPAddress() && GSRWiFi.Working) { GSRWiFi.Working = false; setStatus(WiFiIndicator(GSRWiFi.Index ? GSRWiFi.Index : 24)); GSRWiFi.Results = true; return; } // We got connected.
         if (SoundHandle != NULL) return;  // Don't do this while the buzzer is on (trying to avoid brownouts).
         if (millis() > GSRWiFi.Last){
             RefreshCPU(GSR_CPUMAX);
@@ -3785,7 +3797,7 @@ void WatchyGSR::UpdateWiFiPower(uint8_t PWRIndex){
 
 wl_status_t WatchyGSR::currentWiFi(){
     if (!GetAskWiFi()) return WL_CONNECT_FAILED;
-    if (WiFiStatus() == WL_CONNECTED) return WL_CONNECTED;
+    if (HasIPAddress()) return WL_CONNECTED;
     if (GSRWiFi.Working) return WL_IDLE_STATUS;  // Make like it is relaxing doing nothing.
     return WL_CONNECT_FAILED;
 }
