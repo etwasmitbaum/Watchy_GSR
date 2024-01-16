@@ -119,6 +119,8 @@ class OverrideGSR : public WatchyGSR {
                 vbat[4] = 'V';
                 vbat[5] = '\0';
                 drawData(vbat, 4, 24, WatchyGSR::dRIGHT, 4);
+
+                drawData(CurrentSteps(), 100, 24, WatchyGSR::dLEFT, 4);
             }
             if (NoMenu()) drawDate();
       }

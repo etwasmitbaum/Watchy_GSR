@@ -3291,6 +3291,7 @@ uint8_t Type = SRTC.getType();
   if (!SBMA.defaultConfig()) return;  // Failed.
   // Enable BMA423 isStepCounter feature
   SBMA.enableFeature(BMA456W_STEP_CNTR, true);
+  SBMA.stepCounterWatermark(1);
 #endif
 }
 
