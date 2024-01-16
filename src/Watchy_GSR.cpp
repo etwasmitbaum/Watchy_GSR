@@ -28,7 +28,6 @@ RTC_DATA_ATTR struct GSRWireless final {
     uint8_t Index;           // 10 = built-in, roll backwards to 0.
     uint8_t Requests;        // WiFi Connect requests.
     uint8_t Slow;            // Slows down initial connection to avoid brownouts.
-    IPAddress LocalIP;       // Address gotten when connection happens.
     struct APInfo {
         char APID[33];
         char PASS[65];
@@ -1312,7 +1311,7 @@ void WatchyGSR::drawMenu(){
         }else if (Menu.SubItem == 1){
             O = LGSR.GetID(Options.LanguageID,101);
         }else if (Menu.SubItem == 2 || Menu.SubItem == 3){
-            O = GSRWiFi.LocalIP.toString();
+            O = WiFi.localIP().toString();
         }
     }else if (Menu.Item == GSR_MENU_SCRN){  // Reset Screen.
         O = LGSR.GetID(Options.LanguageID,60);
